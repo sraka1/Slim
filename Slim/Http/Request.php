@@ -52,6 +52,7 @@ class Request
     const METHOD_DELETE = 'DELETE';
     const METHOD_OPTIONS = 'OPTIONS';
     const METHOD_OVERRIDE = '_METHOD';
+    const EOL = "\r\n";
 
     /**
      * @var array
@@ -77,6 +78,12 @@ class Request
     public $cookies;
 
     /**
+     * Parts of a multipart request
+     * @var array[\Slim\Http\Request]
+     */
+    public $parts;
+
+    /**
      * Constructor
      * @param \Slim\Environment $env
      */
@@ -85,6 +92,9 @@ class Request
         $this->env = $env;
         $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
         $this->cookies = new \Slim\Helper\Set(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
+        if ($this->isMultipart()) {
+            $this->parseMultipart();
+        }
     }
 
     /**
@@ -613,5 +623,103 @@ class Request
     public function getUserAgent()
     {
         return $this->headers->get('HTTP_USER_AGENT');
+    }
+
+    /**
+     * Checks if a given request is multipart
+     * @return boolean Indicates multipart
+     */
+    public function isMultipart()
+    {
+        return (strpos($this->getMediaType(), 'multipart/') === 0);
+    }
+
+    /**
+     * Parses a multipart request
+     *
+     * Returns slim request instances
+     *
+     * @return array[\Slim\Http\Request]
+     */
+    private function parseMultipart()
+    {
+        if (false === stripos($this->getContentType(), ';')) {
+            throw new \LogicException('Content-Type does not contain a \';\'');
+        }
+        list($mime, $boundary) = explode(';', $this->getContentType(), 2);
+
+        list($key, $boundaryValue) = explode('=', trim($boundary), 2);
+        if ('boundary' != $key) {
+            throw new \LogicException('Boundary does not start with \'boundary=\'');
+        }
+
+        //Split bodies by the boundary
+        $bodies = explode('--' . $this->getBoundary(), $content);
+        
+        // RFC says, to ignore preamble and epilogue.
+        $preamble = array_shift($bodies);
+        $epilogue = array_pop($bodies);
+
+        // Need to check the first chars of epilogue, because of explode().
+        if (0 !== stripos($epilogue, "--" . self::EOL)) {
+            throw new \InvalidArgumentException('Boundary end did not match');
+        }
+
+        foreach($bodies as $body) {
+            $isHeader = true;
+            $headers = [];
+            $content = [];
+            foreach (explode(self::EOL, $body) as $i => $line) {
+                if (0 == $i) {
+                    // Skip the first line
+                    continue;
+                }
+                if ('' == trim($line)) {
+                    // First newline starts body in next line.
+                    $isHeader = false;
+                    continue;
+                }
+                if ($isHeader) {
+                    list($header, $value) = explode(':', $line);
+                    if ($header) {
+                        $headers[$header] = trim($value);
+                        //$headers[strtoupper(str_replace('-', '_', $header))][] = trim($value);
+                    }
+                } else {
+                    $content[] = $line;
+                }
+            }
+
+            if (!isset($headers['content-type'])) {
+                $headers['content-type'][ = 'text/plain';
+            }
+
+            // Mock environment
+            $env = \Slim\Environment::mock($headers + ['slim.input' => $content]);
+
+            // Create request from mock
+            $requestParts[] = new Request($env);
+
+        }
+
+        $this->parts = new \Slim\Helper\Set($requestParts);
+    }
+
+    /**
+     * Fetch multipart parts
+     * @param  int $index Fetch request on specific index
+     * @return mixed      Either a Set object or a single Request item
+     */
+    public function parts($index = null)
+    {
+        if (!$this->parts) {
+            $this->parseMultipart();
+        }
+
+        if ($index) {
+            return $this->parts->get($index);
+        }
+
+        return $this->parts;
     }
 }
