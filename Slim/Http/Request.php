@@ -646,15 +646,10 @@ class Request
         if (false === stripos($this->getContentType(), ';')) {
             throw new \LogicException('Content-Type does not contain a \';\'');
         }
-        list($mime, $boundary) = explode(';', $this->getContentType(), 2);
-
-        list($key, $boundaryValue) = explode('=', trim($boundary), 2);
-        if ('boundary' != $key) {
-            throw new \LogicException('Boundary does not start with \'boundary=\'');
-        }
-
+        
+        $boundary = $this->getMediaTypeParams['boundary'];
         //Split bodies by the boundary
-        $bodies = explode('--' . $this->getBoundary(), $content);
+        $bodies = explode('--' . $boundary, $content);
         
         // RFC says, to ignore preamble and epilogue.
         $preamble = array_shift($bodies);
@@ -691,7 +686,7 @@ class Request
             }
 
             if (!isset($headers['content-type'])) {
-                $headers['content-type'][ = 'text/plain';
+                $headers['content-type'] = 'text/plain';
             }
 
             // Mock environment
