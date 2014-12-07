@@ -647,7 +647,7 @@ class Request
             throw new \LogicException('Content-Type does not contain a \';\'');
         }
         
-        $boundary = $this->getMediaTypeParams['boundary'];
+        $boundary = $this->getMediaTypeParams()['boundary'];
         //Split bodies by the boundary
         $bodies = explode('--' . $boundary, $content);
         
