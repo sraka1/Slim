@@ -649,7 +649,7 @@ class Request
         
         $boundary = $this->getMediaTypeParams()['boundary'];
         //Split bodies by the boundary
-        $bodies = explode('--' . $boundary, $content);
+        $bodies = explode('--' . $boundary, $this->getBody());
         
         // RFC says, to ignore preamble and epilogue.
         $preamble = array_shift($bodies);
