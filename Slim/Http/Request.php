@@ -655,11 +655,6 @@ class Request
         $preamble = array_shift($bodies);
         $epilogue = array_pop($bodies);
 
-        // Need to check the first chars of epilogue, because of explode().
-        if (0 !== stripos($epilogue, "--" . self::EOL)) {
-            throw new \InvalidArgumentException('Boundary end did not match');
-        }
-
         foreach($bodies as $body) {
             $isHeader = true;
             $headers = [];
