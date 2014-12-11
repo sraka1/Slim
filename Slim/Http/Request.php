@@ -672,7 +672,7 @@ class Request
                 if ($isHeader) {
                     list($header, $value) = explode(':', $line);
                     if ($header) {
-                        $headers[strtolower($header)] = trim($value);
+                        $headers['HTTP_' . strtolower($header)] = trim($value);
                     }
                 } else {
                     $content[] = $line;
@@ -684,7 +684,7 @@ class Request
             }
 
             $content = implode(static::EOL, $content);
-            
+
             // Mock environment
             $env = \Slim\Environment::mock($headers + ['slim.input' => $content]);
 
