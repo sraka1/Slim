@@ -702,7 +702,7 @@ class Request
      */
     public function parts($index = null)
     {
-        if (!$this->parts) {
+        if (count($this->parts) === 0) {
             $this->parseMultipart();
         }
 
