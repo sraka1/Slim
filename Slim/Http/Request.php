@@ -52,7 +52,7 @@ class Request
     const METHOD_DELETE = 'DELETE';
     const METHOD_OPTIONS = 'OPTIONS';
     const METHOD_OVERRIDE = '_METHOD';
-    const EOL = "\r\n";
+    const EOL = "\n";
 
     /**
      * @var array
@@ -672,8 +672,7 @@ class Request
                 if ($isHeader) {
                     list($header, $value) = explode(':', $line);
                     if ($header) {
-                        $headers[$header] = trim($value);
-                        //$headers[strtoupper(str_replace('-', '_', $header))][] = trim($value);
+                        $headers[strtolower($header)] = trim($value);
                     }
                 } else {
                     $content[] = $line;
