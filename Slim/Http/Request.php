@@ -683,6 +683,8 @@ class Request
                 $headers['content-type'] = 'text/plain';
             }
 
+            $content = implode(static::EOL, $content);
+            
             // Mock environment
             $env = \Slim\Environment::mock($headers + ['slim.input' => $content]);
 
