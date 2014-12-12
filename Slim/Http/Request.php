@@ -655,6 +655,7 @@ class Request
         $preamble = array_shift($bodies);
         $epilogue = array_pop($bodies);
 
+        $requestParts = [];
         foreach($bodies as $body) {
             $isHeader = true;
             $headers = [];
