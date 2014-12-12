@@ -679,8 +679,8 @@ class Request
                 }
             }
 
-            if (!isset($headers['content-type'])) {
-                $headers['content-type'] = 'text/plain';
+            if (!isset($headers['HTTP_content-type'])) {
+                $headers['HTTP_content-type'] = 'text/plain';
             }
 
             $content = implode(static::EOL, $content);
