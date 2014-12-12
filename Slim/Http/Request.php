@@ -660,14 +660,17 @@ class Request
             $isHeader = true;
             $headers = [];
             $content = [];
-            foreach (explode(self::EOL, $body) as $i => $line) {
+            $data = explode(self::EOL, $body);
+            foreach ($data as $i => $line) {
                 if (0 == $i) {
                     // Skip the first line
+                    array_shift($data);
                     continue;
                 }
                 if ('' == trim($line)) {
-                    // First newline starts body in next line.
+                    // Header-body separator
                     $isHeader = false;
+                    array_shift($data);
                     continue;
                 }
                 if ($isHeader) {
@@ -675,16 +678,16 @@ class Request
                     if ($header) {
                         $headers['HTTP_' . strtolower($header)] = trim($value);
                     }
+                    array_shift($data);
                 } else {
-                    $content[] = $line;
+                    $content = implode(static::EOL, $data);
+                    break;
                 }
             }
 
             if (!isset($headers['HTTP_content-type'])) {
                 $headers['HTTP_content-type'] = 'text/plain';
             }
-
-            $content = implode(static::EOL, $content);
 
             // Mock environment
             $env = \Slim\Environment::mock($headers + ['slim.input' => $content]);
