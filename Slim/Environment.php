@@ -117,6 +117,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     {
         if ($settings) {
             $this->properties = $settings;
+        } else if (PHP_SAPI == 'cli') {
+            $env = self::mock();
         } else {
             $env = array();
 
