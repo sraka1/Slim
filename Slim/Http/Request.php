@@ -72,6 +72,12 @@ class Request
     public $headers;
 
     /**
+     * Raw HTTP headers
+     * @var \Slim\Helper\Set
+     */
+    public $rawHeaders;
+
+    /**
      * HTTP Cookies
      * @var \Slim\Helper\Set
      */
@@ -91,6 +97,7 @@ class Request
     {
         $this->env = $env;
         $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
+        $this->rawHeaders = new \Slim\Helper\Set(getallheaders()); //Needs PHP 5.4 if FastCGI is being used
         $this->cookies = new \Slim\Helper\Set(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
         if ($this->isMultipart()) {
             $this->parseMultipart();
@@ -399,6 +406,25 @@ class Request
         //     return $headers;
         // }
     }
+
+    /**
+     * Get Raw Headers
+     *
+     * This method returns a key-value array of all of the headers sent in the HTTP request, or
+     * the value of a hash key if requested; if the array key does not exist, NULL is returned.
+     *
+     * @param  string $key
+     * @param  mixed  $default The default value returned if the requested header is not available
+     * @return mixed
+     */
+    public function rawHeaders($key = null, $default = null)
+    {
+        if ($key) {
+            return $this->rawHeaders->get($key, $default);
+        }
+
+        return $this->headers;
+    } 
 
     /**
      * Get Body
