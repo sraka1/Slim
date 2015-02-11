@@ -423,7 +423,7 @@ class Request
             return $this->rawHeaders->get($key, $default);
         }
 
-        return $this->headers;
+        return $this->rawHeaders;
     } 
 
     /**
