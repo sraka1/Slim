@@ -97,7 +97,11 @@ class Request
     {
         $this->env = $env;
         $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
-        $this->rawHeaders = new \Slim\Helper\Set(getallheaders()); //Needs PHP 5.4 if FastCGI is being used
+        if (function_exists('getallheaders')) {
+            $this->rawHeaders = new \Slim\Helper\Set(getallheaders()); //Needs PHP 5.4 if FastCGI is being used
+        } else {
+            $this->rawHeaders = $this->headers;
+        }
         $this->cookies = new \Slim\Helper\Set(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
         if ($this->isMultipart()) {
             $this->parseMultipart();
