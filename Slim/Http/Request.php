@@ -73,7 +73,7 @@ class Request
 
     /**
      * Raw HTTP headers
-     * @var \Slim\Helper\Set
+     * @var \Slim\Http\Headers
      */
     public $rawHeaders;
 
